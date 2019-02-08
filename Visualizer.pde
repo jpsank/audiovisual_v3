@@ -137,6 +137,8 @@ class Visualizer {
         float angle = line.a + ( (float)i/fftLen*fftSum/fftLen ) * (sin((float)idx/50)); // * ((i%2)*2-1)
         color fill = color(red + pow(avgs[i]*fftSum/fftLen,2), green + pow(fftSum/fftLen*(1+5*i/fftLen),2), blue + i);
         float weight = next[i]+pow(avgs[i],1.25+2*i/fftLen);
+        size = weight;
+        weight = weight*i;
         stroke(fill,125);
         strokeWeight(weight);
         strokeCap(SQUARE);
