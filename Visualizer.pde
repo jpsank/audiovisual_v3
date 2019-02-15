@@ -45,6 +45,9 @@ class Visualizer {
   int numLines = 18;
   float lineSize;
   
+  
+  float fftSum;
+  
   Visualizer(String fp) {
     
     array1d = new int[fftLen];
@@ -73,7 +76,8 @@ class Visualizer {
     
     fft.forward(song.mix);
     
-    float fftSum = 0;
+    float lastSum = fftSum;
+    fftSum = 0;
     float[] avgs = new float[fftLen];
     for(int i = 0; i < fftLen; i++) {
       float a = fft.getAvg(i);
@@ -87,11 +91,15 @@ class Visualizer {
     float avg3 = sum(subset(avgs,interval*2,interval))/interval;
     float maxavg = max(avg1,avg2,avg3);
     
-    float red = avg1/maxavg*200;
-    float green = avg2/maxavg*200;
-    float blue = avg3/maxavg*200;
+    float red = avg1/maxavg*255;
+    float green = avg2/maxavg*255;
+    float blue = avg3/maxavg*255;
     
-    lineSize = 1+sqrt(fftSum/fftLen);
+    lineSize = 1+(fftSum/fftLen);
+    
+    if (abs(fftSum-lastSum)/fftLen > .5 || abs(fftSum-lastSum)/lastSum >= 1.5) {
+      background(0);
+    }
     
     int[] ruleset = new int[8];
     for (int i=0; i<8; i++) {
@@ -131,28 +139,36 @@ class Visualizer {
       
       // 0,1,0,1,1,0,1,0
       
+      float size = avgs[i]*(.25+5*i/fftLen);
+      color fill = color(red, green, blue + i);
+      float weight = pow(avgs[i]*(.4+4*i/fftLen),2);
+      float angle = idx/100. + TWO_PI*sin( idx/50. + sqrt(fftSum/fftLen)*(float)i/fftLen );
+      
       for (Line line: lines) {
-        //float angle = line.a + ((float)idx/40) + fftSum/fftLen/2;
-        float size = lineSize + avgs[i]*i/fftLen;
-        float angle = line.a + ( (float)i/fftLen*fftSum/fftLen ) * (sin((float)idx/50)); // * ((i%2)*2-1)
-        color fill = color(red + pow(avgs[i]*fftSum/fftLen,2), green + pow(fftSum/fftLen*(1+5*i/fftLen),2), blue + i);
-        float weight = next[i]+pow(avgs[i],1.25+2*i/fftLen);
-        size = weight;
-        weight = weight*i;
-        stroke(fill,125);
-        strokeWeight(weight);
-        strokeCap(SQUARE);
-        line(line.x+cos(angle)*i*size*2, line.y+sin(angle)*i*size*2, line.x+cos(angle)*(i+1)*size*2, line.y+sin(angle)*(i+1)*size*2);
+        float a2 = line.a + angle;
+        
+        float x = line.x + cos(a2)*i*lineSize;
+        float y = line.y + sin(a2)*i*lineSize;
         stroke(fill);
         strokeWeight(weight/2);
         strokeCap(SQUARE);
-        line(line.x+cos(angle)*i*size, line.y+sin(angle)*i*size, line.x+cos(angle)*(i+1)*size, line.y+sin(angle)*(i+1)*size);
+        line(x, y, x + cos(line.a)*(size/2), y + sin(line.a)*(size/2));
+        stroke(fill,125);
+        strokeWeight(weight);
+        strokeCap(SQUARE);
+        line(x, y, x + cos(line.a)*(size), y + sin(line.a)*(size));
+        
+        //stroke(fill,125);
+        //strokeWeight(size);
+        //strokeCap(SQUARE);
+        //line(x, y, x + cos(line.a)*(weight/2), y + sin(line.a)*(weight/2));
       }
     }
     array1d = next;
     
-    for (Line line: lines) {
-      float s = pow(fftSum/fftLen,2);
+    for (int i=0; i<lines.length; i++) {
+      Line line = lines[i];
+      float s = pow(fftSum/fftLen,2)*2;
       line.x += cos(line.a)*s;
       line.y += sin(line.a)*s;
       line.update();

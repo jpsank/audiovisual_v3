@@ -33,6 +33,7 @@ class Client {
       
       if (viz.done) {
         next();
+        background(0);
       }
     }
   }
@@ -66,6 +67,7 @@ class Client {
       }
       if (key == TAB) {
         next();
+        background(0);
       } else if (key == 'h') {
         hide = !hide;
       }
