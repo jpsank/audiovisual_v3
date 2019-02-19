@@ -7,6 +7,8 @@ class Client {
   String title = "";
   boolean hide = false;
   
+  boolean skip = false;
+  
   Visualizer viz;
   
   Client() {
@@ -25,15 +27,19 @@ class Client {
   
   void step() {
     if (viz != null) {
-      viz.step();
-      
-      if (!hide) {
-        text(title,20,20);
-      }
-      
-      if (viz.done) {
-        next();
-        background(0);
+      if (skip) {
+        viz.song.skip(5000);
+      } else {
+        viz.step();
+        
+        if (!hide) {
+          text(title,20,20);
+        }
+        
+        if (viz.done) {
+          next();
+          background(0);
+        }
       }
     }
   }
@@ -62,7 +68,7 @@ class Client {
     if (viz != null) {
       if (key == CODED) {
         if (keyCode == RIGHT) {
-          viz.song.skip(5000);
+          skip = true;
         }
       }
       if (key == TAB) {
@@ -70,6 +76,15 @@ class Client {
         background(0);
       } else if (key == 'h') {
         hide = !hide;
+      }
+    }
+  }
+  void keyRelease() {
+    if (viz != null) {
+      if (key == CODED) {
+        if (keyCode == RIGHT) {
+          skip = false;
+        }
       }
     }
   }

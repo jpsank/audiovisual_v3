@@ -65,6 +65,11 @@ void keyPressed() {
     client.keyPress();
   }
 }
+void keyReleased() {
+  if (client != null) {
+    client.keyRelease();
+  }
+}
 
 float angleBetween(float x1, float y1, float x2, float y2) {
   float a = atan2(y2-y1, x2-x1) % TWO_PI;

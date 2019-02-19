@@ -35,6 +35,7 @@ class Visualizer {
   boolean done;
   int idx = 0;
   int fftLen = 256;
+  float weightedIdx = 0;
   
   AudioPlayer song;
   FFT fft;
@@ -85,6 +86,7 @@ class Visualizer {
       fftSum += a;
     }
     
+    
     int interval = floor(float(avgs.length)/3);
     float avg1 = sum(subset(avgs,0,interval))/interval;
     float avg2 = sum(subset(avgs,interval,interval))/interval;
@@ -97,9 +99,15 @@ class Visualizer {
     
     lineSize = 1+(fftSum/fftLen);
     
-    if (abs(fftSum-lastSum)/fftLen > .5 || abs(fftSum-lastSum)/lastSum >= 1.5) {
+    if (abs(fftSum-lastSum)/fftLen > .25 || abs(fftSum-lastSum)/lastSum >= 1.25 || fftSum/fftLen < 1) {
       background(0);
     }
+    
+    float screenShake = 4*fftSum/fftLen;
+    translate(random(-screenShake,screenShake),random(-screenShake,screenShake));
+    
+    float screenRotate = random(-1,1) * pow(fftSum/4000,2);
+    rotate(screenRotate);
     
     int[] ruleset = new int[8];
     for (int i=0; i<8; i++) {
@@ -139,16 +147,18 @@ class Visualizer {
       
       // 0,1,0,1,1,0,1,0
       
-      float size = avgs[i]*(.25+5*i/fftLen);
+      float pos = (float)i/fftLen;
+      
+      float size = avgs[i]*(.2+4*pos);
       color fill = color(red, green, blue + i);
-      float weight = pow(avgs[i]*(.4+4*i/fftLen),2);
-      float angle = idx/100. + TWO_PI*sin( idx/50. + sqrt(fftSum/fftLen)*(float)i/fftLen );
+      float weight = pow(avgs[i]*(.4+2*pos),2);
+      float angle = TWO_PI*sin( weightedIdx/100. + sqrt(fftSum/fftLen)*pos );
       
       for (Line line: lines) {
         float a2 = line.a + angle;
         
-        float x = line.x + cos(a2)*i*lineSize;
-        float y = line.y + sin(a2)*i*lineSize;
+        float x = line.x + cos(a2)*i*lineSize - cos(a2)*avgs[i];
+        float y = line.y + sin(a2)*i*lineSize - sin(a2)*avgs[i];
         stroke(fill);
         strokeWeight(weight/2);
         strokeCap(SQUARE);
@@ -174,9 +184,8 @@ class Visualizer {
       line.update();
     }
     
-    //brain.randomChange();
-    
     idx++;
+    weightedIdx += fftSum/fftLen;
     
   }
   
