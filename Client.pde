@@ -30,7 +30,9 @@ class Client {
       if (skip) {
         viz.song.skip(5000);
       } else {
+        pushMatrix();
         viz.step();
+        popMatrix();
         
         if (!hide) {
           text(title,20,20);
