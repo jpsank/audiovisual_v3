@@ -35,7 +35,10 @@ class Client {
         popMatrix();
         
         if (!hide) {
+          fill(255);
           text(title,20,20);
+          fill(255,255*frameRate/FPS,255*frameRate/FPS);
+          text(frameRate,width-50,20);
         }
         
         if (viz.done) {

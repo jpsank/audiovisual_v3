@@ -34,7 +34,7 @@ class Visualizer {
   
   boolean done;
   int idx = 0;
-  int fftLen = 256;
+  int fftLen = 128;
   float weightedIdx = 0;
   
   AudioPlayer song;
@@ -85,13 +85,15 @@ class Visualizer {
     float avg3 = sum(subset(avgs,interval*2,interval))/interval;
     float maxavg = max(avg1,avg2,avg3);
     
-    float red = avg1/maxavg*255;
-    float green = avg2/maxavg*255;
-    float blue = avg3/maxavg*255;
+    float red = avg1*(255/(1+maxavg*.2));
+    float green = avg2*(255/(1+maxavg*.2));
+    float blue = avg3*(255/(1+maxavg*.2));
     
     lineSize = 1+(fftSum/fftLen);
     
-    if (abs(fftSum-lastSum)/fftLen > .25 || abs(fftSum-lastSum)/lastSum >= 1.25 || fftSum/fftLen < 1) {
+    if (abs(fftSum-lastSum)/fftLen > .75 || abs(fftSum-lastSum)/lastSum >= 1.75) {
+      background(red/4,green/4,blue/4);
+    } else {
       background(0);
     }
     
@@ -126,6 +128,12 @@ class Visualizer {
         strokeWeight(weight);
         strokeCap(SQUARE);
         line(x, y, x + cos(line.a)*(size), y + sin(line.a)*(size));
+        
+        stroke(fill,10+10*avgs[i]);
+        strokeWeight(100+avgs[i]*pos);
+        strokeCap(SQUARE);
+        line(x, y, x + cos(line.a)*(size), y + sin(line.a)*(size));
+        
         x = line.x + cos(line.a)*i*(lineSize);
         y = line.y + sin(line.a)*i*(lineSize);
         stroke(fill,10+10*avgs[i]);
@@ -133,35 +141,44 @@ class Visualizer {
         strokeCap(SQUARE);
         line(x, y, x + cos(line.a)*(size), y + sin(line.a)*(size));
         
-        //stroke(fill,125);
-        //strokeWeight(i);
-        //strokeCap(SQUARE);
-        //line(x, y, x + cos(line.a)*(size), y + sin(line.a)*(size));
+        //if (i==fftLen-1) {
+        //  int len = 4;
+        //  noStroke();
+        //  ellipseMode(CENTER);
+        //  for (int j=0; j<len; j++) {
+        //    float pos2 = (float)j/len;
+        //    fill(red, green, blue, 255*pow(1-pos2,5/(avg1-avg3)));
+        //    float rad = pow(.5+pos2,2)*50*fftSum/fftLen;
+        //    ellipse(x,y, rad,rad);
+        //  }
+        //}
         
-        //noStroke();
-        //fill(fill);
-        //ellipse(x, y, weight, size);
-        
-        //x = line.x + cos(line.a)*i*lineSize - cos(line.a)*avgs[i];
-        //y = line.y + sin(line.a)*i*lineSize - sin(line.a)*avgs[i];
-        //stroke(fill,100);
-        //strokeWeight(weight);
-        //strokeCap(SQUARE);
-        //line(x, y, x + cos(a2)*(i*size), y + sin(a2)*(i*size));
-        
-        //stroke(fill,125);
-        //strokeWeight(size);
-        //strokeCap(SQUARE);
-        //line(x, y, x + cos(line.a)*(weight/2), y + sin(line.a)*(weight/2));
       }
     }
     
     for (int i=0; i<lines.length; i++) {
       Line line = lines[i];
+      
       float s = pow(fftSum/fftLen,2)*2;
       line.x += cos(line.a)*s;
       line.y += sin(line.a)*s;
       line.update();
+      
+      int len = 4;
+      ellipseMode(CENTER);
+      for (int j=0; j<len; j++) {
+        float pos = (float)j/len;
+        float size = pow(.5+pos,2)*10*fftSum/fftLen;
+        float x = line.x+cos(line.a)*(lastSum+fftSum)/2;
+        float y = line.y+sin(line.a)*(lastSum+fftSum)/2;
+        
+        fill(red, green, blue, 255*pow(1-pos,5/(avg1-avg3)));
+        strokeWeight(size*5);
+        stroke(red, green, blue + 100, 10+fftSum/fftLen);
+        
+        ellipse(x,y, size,size);
+      }
+      
     }
     
     idx++;

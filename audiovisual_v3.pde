@@ -5,6 +5,40 @@ import ddf.minim.analysis.*;
 Client client;
 Minim minim;
 
+float FPS = 60;
+
+
+void setup() {
+  minim = new Minim(this);
+  client = new Client();
+  
+  fullScreen(P3D);
+  frameRate(FPS);
+  
+  background(0);
+  
+  textFont(createFont("Arial", 12));
+  
+  selectFolder("Select song folder to visualize:", "folderSelected");
+}
+
+void draw() {
+  if (client != null) {
+    client.step();
+  }
+}
+
+void keyPressed() {
+  if (client != null) {
+    client.keyPress();
+  }
+}
+void keyReleased() {
+  if (client != null) {
+    client.keyRelease();
+  }
+}
+
 static final float sum(float... arr) {
   float sum = 0;
   for (float f: arr)  sum += f;
@@ -33,41 +67,6 @@ void folderSelected(File selection) {
     exit();
   } else {
     client.selectMusicFolder(selection);
-  }
-}
-
-
-void setup() {
-  minim = new Minim(this);
-  client = new Client();
-  
-  fullScreen(P3D);
-  
-  background(0);
-  
-  textFont(createFont("Arial", 12));
-  
-  selectFolder("Select song folder to visualize:", "folderSelected");
-}
-
-void draw() {
-  if (client != null) {
-    client.step();
-  }
-  if (frameRate < 50) {
-    println(frameRate);
-  }
-  //text(str(frameRate),width-100,30);
-}
-
-void keyPressed() {
-  if (client != null) {
-    client.keyPress();
-  }
-}
-void keyReleased() {
-  if (client != null) {
-    client.keyRelease();
   }
 }
 
