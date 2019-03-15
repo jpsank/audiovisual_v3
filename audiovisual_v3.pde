@@ -17,7 +17,7 @@ void setup() {
   
   background(0);
   
-  textFont(createFont("Arial", 12));
+  textFont(createFont("Arial", 72));
   
   selectFolder("Select song folder to visualize:", "folderSelected");
 }

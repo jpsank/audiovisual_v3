@@ -46,6 +46,7 @@ class Visualizer {
   
   
   float fftSum;
+  float[] avgs = new float[fftLen];
   
   Visualizer(String fp) {
     
@@ -70,8 +71,9 @@ class Visualizer {
     fft.forward(song.mix);
     
     float lastSum = fftSum;
+    
     fftSum = 0;
-    float[] avgs = new float[fftLen];
+    avgs = new float[fftLen];
     for(int i = 0; i < fftLen; i++) {
       float a = fft.getAvg(i);
       avgs[i] = a;
@@ -93,6 +95,8 @@ class Visualizer {
     
     if (abs(fftSum-lastSum)/fftLen > .75 || abs(fftSum-lastSum)/lastSum >= 1.75) {
       background(red/4,green/4,blue/4);
+    } else if (abs(fftSum-lastSum)/fftLen > .25 || abs(fftSum-lastSum)/lastSum >= 1.25) {
+      background(red/8,green/8,blue/8);
     } else {
       background(0);
     }
@@ -118,8 +122,10 @@ class Visualizer {
       for (Line line: lines) {
         float a2 = line.a + angle;
         
-        float x = line.x + cos(a2)*i*lineSize;
-        float y = line.y + sin(a2)*i*lineSize;
+        // crazy line
+        
+        float x = line.x + cos(a2)*i*(lineSize);
+        float y = line.y + sin(a2)*i*(lineSize);
         stroke(fill);
         strokeWeight(weight/2);
         strokeCap(SQUARE);
@@ -134,24 +140,19 @@ class Visualizer {
         strokeCap(SQUARE);
         line(x, y, x + cos(line.a)*(size), y + sin(line.a)*(size));
         
-        x = line.x + cos(line.a)*i*(lineSize);
-        y = line.y + sin(line.a)*i*(lineSize);
+        // straight line
+        
+        x = line.x + cos(line.a)*i*(lineSize) + cos(line.a)*avgs[i];
+        y = line.y + sin(line.a)*i*(lineSize) + sin(line.a)*avgs[i];
+        stroke(fill);
+        strokeWeight(weight/2);
+        strokeCap(SQUARE);
+        line(x, y, x + cos(line.a)*(size/2), y + sin(line.a)*(size/2));
+        
         stroke(fill,10+10*avgs[i]);
         strokeWeight(100+avgs[i]*pos);
         strokeCap(SQUARE);
         line(x, y, x + cos(line.a)*(size), y + sin(line.a)*(size));
-        
-        //if (i==fftLen-1) {
-        //  int len = 4;
-        //  noStroke();
-        //  ellipseMode(CENTER);
-        //  for (int j=0; j<len; j++) {
-        //    float pos2 = (float)j/len;
-        //    fill(red, green, blue, 255*pow(1-pos2,5/(avg1-avg3)));
-        //    float rad = pow(.5+pos2,2)*50*fftSum/fftLen;
-        //    ellipse(x,y, rad,rad);
-        //  }
-        //}
         
       }
     }
@@ -167,6 +168,9 @@ class Visualizer {
       int len = 4;
       ellipseMode(CENTER);
       for (int j=0; j<len; j++) {
+        
+        // normal orb
+        
         float pos = (float)j/len;
         float size = pow(.5+pos,2)*10*fftSum/fftLen;
         float x = line.x+cos(line.a)*(lastSum+fftSum)/2;
@@ -175,6 +179,19 @@ class Visualizer {
         fill(red, green, blue, 255*pow(1-pos,5/(avg1-avg3)));
         strokeWeight(size*5);
         stroke(red, green, blue + 100, 10+fftSum/fftLen);
+        
+        ellipse(x,y, size,size);
+        
+        // crazy orbs
+        
+        size = avg2*8 + avg3*32;
+        float angle = line.a + TWO_PI*sin( weightedIdx/100. + sqrt(fftSum/fftLen)*pos );
+        x = line.x+cos(angle)*(lastSum+fftSum)/2;
+        y = line.y+sin(angle)*(lastSum+fftSum)/2;
+        
+        fill(red, green, blue+200*pos, 255*pow(1-pos,avg3));
+        strokeWeight(size*5);
+        stroke(red, green, blue+200*pos, 20);
         
         ellipse(x,y, size,size);
       }
