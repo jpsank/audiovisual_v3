@@ -7,4 +7,5 @@ Controls:
  - TAB:        play next song
  - H:          hide fps tracker and song name
  - ESC:        exit
+ - RETURN:     search music
 
