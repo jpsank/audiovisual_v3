@@ -142,8 +142,8 @@ class Visualizer {
         
         // straight line
         
-        x = line.x + cos(line.a)*i*(lineSize) + cos(line.a)*avgs[i];
-        y = line.y + sin(line.a)*i*(lineSize) + sin(line.a)*avgs[i];
+        x = line.x + cos(line.a)*i*(lineSize) + cos(line.a)*(avgs[i]*(10+50*pos));
+        y = line.y + sin(line.a)*i*(lineSize) + sin(line.a)*(avgs[i]*(10+50*pos));
         stroke(fill);
         strokeWeight(weight/2);
         strokeCap(SQUARE);
@@ -172,25 +172,27 @@ class Visualizer {
         // normal orb
         
         float pos = (float)j/len;
-        float size = pow(.5+pos,2)*10*fftSum/fftLen;
+        float size = pow(.5+pos,2)*10*avg1;
+        float weight = size+avg3*10;
         float x = line.x+cos(line.a)*(lastSum+fftSum)/2;
         float y = line.y+sin(line.a)*(lastSum+fftSum)/2;
         
         fill(red, green, blue, 255*pow(1-pos,5/(avg1-avg3)));
-        strokeWeight(size*5);
+        strokeWeight(weight);
         stroke(red, green, blue + 100, 10+fftSum/fftLen);
         
         ellipse(x,y, size,size);
         
         // crazy orbs
         
-        size = avg2*8 + avg3*32;
+        size = avg2*8*(1-pos) + avg3*32*pos;
+        weight = size*2+avg3*5;
         float angle = line.a + TWO_PI*sin( weightedIdx/100. + sqrt(fftSum/fftLen)*pos );
         x = line.x+cos(angle)*(lastSum+fftSum)/2;
         y = line.y+sin(angle)*(lastSum+fftSum)/2;
         
         fill(red, green, blue+200*pos, 255*pow(1-pos,avg3));
-        strokeWeight(size*5);
+        strokeWeight(weight);
         stroke(red, green, blue+200*pos, 20);
         
         ellipse(x,y, size,size);

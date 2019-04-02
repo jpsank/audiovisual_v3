@@ -78,6 +78,7 @@ class Client {
           }
         }
       }
+      //saveFrame("output/" + title + "_#####.png");
     }
   }
   
@@ -87,7 +88,8 @@ class Client {
     }
     
     idx = idx % songfiles.size();
-    viz = new Visualizer(songfiles.get(idx));
+    String fn = songfiles.get(idx);
+    viz = new Visualizer(fn);
     
     AudioMetaData metadata = viz.song.getMetaData();
     String t = metadata.title();
@@ -99,6 +101,7 @@ class Client {
       String[] splt = split(songfiles.get(idx),'/');
       title = splt[splt.length-1];
     }
+    println("Playing",title);
   }
   
   void next() {
